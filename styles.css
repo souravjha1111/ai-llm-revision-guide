@@ -21,3 +21,16 @@
 .qa-answer b{color:#dce8f8}
 .qa-callout{margin-top:20px;padding:14px 16px;border-left:2px solid var(--amber);background:#282317;color:#d8c9aa;font-size:11px;line-height:1.8}
 @media(max-width:650px){.question-bank{padding:15px}.question-bank-head{gap:10px}.question-bank-head h3{font-size:16px}.question-count{font-size:8px}.qa-item summary{font-size:11px;padding-right:25px}}
+
+
+/* ML taxonomy and learning paradigm notes */
+.ml-taxonomy{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ml-taxonomy-card{padding:14px;border:1px solid #34445d;border-radius:7px;background:#0e192b}
+.ml-taxonomy-card b,.ml-taxonomy-card strong,.ml-taxonomy-card span{display:block}
+.ml-taxonomy-card b{font-size:12px;color:#e5edf8}
+.ml-taxonomy-card span{font-size:10px;color:var(--dim);margin:5px 0 10px}
+.ml-taxonomy-card strong{font-size:10px;line-height:1.7;color:var(--mint)}
+.ml-type-grid .note-card{min-height:205px}
+.ml-type-grid .note-card p+p{margin-top:8px}
+.ml-type-grid .note-card b{color:#dce8f8}
+@media(max-width:650px){.ml-taxonomy{grid-template-columns:1fr}.ml-type-grid .note-card{min-height:0}}
