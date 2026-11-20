@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="A concise, visual AI and LLM engineering interview revision guide.">
+  <title>AI/LLM Engineering — Revision Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="AI revision guide home">
+        <span class="brand-mark">∿</span><span>FIELDNOTES<span class="brand-sub">AI / LLM ENGINEERING</span></span>
+      </a>
+      <div class="side-label">YOUR REVISION SPACE</div>
+      <a class="side-link active" href="#overview"><span>◫</span> Overview</a>
+      <a class="side-link" href="#roadmap"><span>☷</span> Learning index</a>
+      <a class="side-link" href="#tokenization"><span>⌘</span> Tokenization</a>
+      <div class="sidebar-bottom">
+        <div class="side-label">BUILT FOR</div>
+        <p>Clear mental models.<br>Practical engineering.<br>Interview recall.</p>
+        <a class="repo-link" href="https://github.com/souravjha1111/ai-llm-revision-guide" target="_blank" rel="noreferrer">View source on GitHub ↗</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumb">KNOWLEDGE BASE <span>/</span> INTERVIEW PREP</div>
+        <a class="top-link" href="https://github.com/souravjha1111/ai-llm-revision-guide" target="_blank" rel="noreferrer">GitHub repository ↗</a>
+      </header>
+
+      <section class="hero" id="overview">
+        <div class="eyebrow"><span class="pulse"></span> PERSONAL TECHNICAL PLAYBOOK</div>
+        <h1>AI / LLM Engineering<br><span>Revision Guide.</span></h1>
+        <p class="hero-copy">A compact reference for understanding, building, and explaining modern AI systems. Learn deeply; revise quickly.</p>
+        <div class="hero-meta"><span>01 — FOUNDATIONS TO PRODUCTION</span><span>·</span><span>CONTINUOUSLY UPDATED</span></div>
+      </section>
+
+      <section class="stats-grid" aria-label="Guide status">
+        <article class="stat-card"><div class="stat-kicker">ROADMAP</div><div class="stat-value">14 <small>modules</small></div><div class="stat-foot">Full learning index</div></article>
+        <article class="stat-card"><div class="stat-kicker">CURRENT FOCUS</div><div class="stat-value">01 <small>topic</small></div><div class="stat-foot">Tokenization deep-dive</div></article>
+        <article class="stat-card"><div class="stat-kicker">APPROACH</div><div class="stat-value">Build <small>→</small> Explain</div><div class="stat-foot">Concepts + local experiments</div></article>
+      </section>
+
+      <section class="section-block">
+        <div class="section-heading"><div><div class="eyebrow">START HERE</div><h2>How to use this guide</h2></div><span class="section-index">00 / GUIDE</span></div>
+        <div class="principles">
+          <div><span class="principle-no">01</span><strong>Understand the model</strong><p>Know what a concept is and why it exists before memorising terms.</p></div>
+          <div><span class="principle-no">02</span><strong>Trace the flow</strong><p>Use small diagrams and concrete examples to remember how things connect.</p></div>
+          <div><span class="principle-no">03</span><strong>Explain the trade-off</strong><p>Be ready to discuss when a technique helps, when it fails, and what it costs.</p></div>
+        </div>
+      </section>
+
+      <section class="section-block" id="roadmap">
+        <div class="section-heading"><div><div class="eyebrow">THE COMPLETE MAP</div><h2>Learning index</h2><p class="section-sub">The roadmap stays visible as the notes grow. Future modules are intentionally kept as an index until covered.</p></div><span class="section-index">14 MODULES</span></div>
+        <div class="search-wrap"><span>⌕</span><input id="topicSearch" type="search" placeholder="Find a topic or concept…" aria-label="Search learning index"><kbd>/</kbd></div>
+        <div class="roadmap-list" id="roadmapList">
+          <article class="module-row" data-search="ml foundations machine learning ai deep learning supervised unsupervised self supervised reinforcement"><div class="module-number">00</div><div class="module-info"><h3>ML foundations refresh</h3><p>AI vs ML vs deep learning · learning paradigms · neural network basics</p></div><span class="status status-covered">Covered in session</span><span class="module-arrow">↗</span></article>
+          <article class="module-row" data-search="llm foundations tokenization tokens token ids bpe vocabulary special tokens"><div class="module-number">01</div><div class="module-info"><h3>LLM foundations & tokenization</h3><p>Tokens · token IDs · subwords · BPE · vocabulary · special tokens</p></div><span class="status status-current">Current focus</span><a class="module-arrow" href="#tokenization" aria-label="Open tokenization notes">↗</a></article>
+          <article class="module-row" data-search="neural networks transformer architecture attention embeddings positional encoding"><div class="module-number">02</div><div class="module-info"><h3>Neural networks & Transformer architecture</h3><p>Network building blocks · attention intuition · encoder / decoder</p></div><span class="status status-next">Up next</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="transformer internals generation mechanics qkv softmax logits sampling"><div class="module-number">03</div><div class="module-info"><h3>Transformer internals & generation mechanics</h3><p>Q / K / V · attention · logits · decoding · context window</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="inference engineering serving batching kv cache quantization latency throughput"><div class="module-number">04</div><div class="module-info"><h3>Inference engineering</h3><p>Serving · batching · KV cache · quantization · latency / throughput</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="data engineering pretraining datasets cleaning dedup training"><div class="module-number">05</div><div class="module-info"><h3>Data engineering & pretraining</h3><p>Data pipelines · quality · deduplication · pretraining objective</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="fine tuning alignment sft lora peft dpo rl hf"><div class="module-number">06</div><div class="module-info"><h3>Fine-tuning & alignment</h3><p>Supervised fine-tuning · PEFT / LoRA · preference alignment</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="evaluation reliability benchmarks hallucination robustness"><div class="module-number">07</div><div class="module-info"><h3>Evaluation & reliability</h3><p>Offline / online evals · benchmarks · hallucination · robustness</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="embeddings retrieval ranking recommendations vector similarity"><div class="module-number">08</div><div class="module-info"><h3>Embeddings, retrieval, ranking & recommendations</h3><p>Vector representations · similarity · retrieval and reranking</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="rag retrieval augmented generation chunking indexing reranking"><div class="module-number">09</div><div class="module-info"><h3>Retrieval-Augmented Generation (RAG)</h3><p>Chunking · indexing · retrieval · context construction · grounding</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="tool use workflows agentic ai function calling mcp"><div class="module-number">10</div><div class="module-info"><h3>Tool use, workflows & agentic AI</h3><p>Tool / function calling · planning · state · MCP · orchestration</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="multi agent systems human oversight coordination"><div class="module-number">11</div><div class="module-info"><h3>Multi-agent systems & human oversight</h3><p>Coordination · delegation · critique loops · human-in-the-loop</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="production ai engineering safety compliance observability guardrails"><div class="module-number">12</div><div class="module-info"><h3>Production AI engineering, safety & compliance</h3><p>Observability · guardrails · security · privacy · cost management</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="applied ml systems classification forecasting recommendation"><div class="module-number">13</div><div class="module-info"><h3>Applied ML systems</h3><p>Problem framing · model selection · deployment · feedback loops</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+        </div>
+        <p class="empty-state" id="emptyState" hidden>No matching topics. Try another search.</p>
+      </section>
+
+      <section class="section-block notes-section" id="tokenization">
+        <div class="section-heading"><div><div class="eyebrow">MODULE 01 · QUICK REVISION</div><h2>Tokenization</h2><p class="section-sub">How raw text becomes the numeric sequence an LLM can process.</p></div><span class="status status-current">In progress</span></div>
+        <div class="mental-model">
+          <div class="mental-label">THE PIPELINE</div>
+          <div class="pipeline">
+            <div class="pipe-box"><span>INPUT</span><strong>“Hello world!”</strong></div><div class="pipe-arrow">→</div>
+            <div class="pipe-box"><span>TOKENIZER</span><strong>Split into pieces</strong></div><div class="pipe-arrow">→</div>
+            <div class="pipe-box"><span>TOKEN IDs</span><strong>[15496, 995, 0]</strong></div>
+          </div>
+          <p class="diagram-caption">Text → token pieces → integer IDs → model embeddings. The model consumes vectors, not words directly.</p>
+        </div>
+        <div class="note-grid">
+          <article class="note-card"><div class="note-tag">01 / DEFINITION</div><h3>What is a token?</h3><p>A token is a unit of text chosen by a tokenizer. It can be a whole word, part of a word, punctuation, whitespace, or a byte-level piece.</p></article>
+          <article class="note-card"><div class="note-tag">02 / DON'T CONFUSE</div><h3>Token ≠ ID ≠ embedding</h3><ul><li><b>Token:</b> text piece, e.g. <code>cat</code></li><li><b>Token ID:</b> integer assigned to that piece</li><li><b>Embedding:</b> learned vector looked up using the ID</li></ul></article>
+          <article class="note-card"><div class="note-tag">03 / WHY SUBWORDS</div><h3>Why not one token per word?</h3><p>A word-only vocabulary becomes huge and struggles with unseen words. Character-only splitting creates long sequences. Subwords balance vocabulary size and sequence length.</p></article>
+          <article class="note-card"><div class="note-tag">04 / BPE</div><h3>Byte Pair Encoding</h3><p>Repeatedly merge frequent adjacent units into a larger unit during tokenizer training.</p><div class="merge-visual"><span>l</span><span>+</span><span>o</span><i>→</i><strong>lo</strong><i>→</i><strong>low</strong></div><p class="small-muted">Illustrative merge sequence, not a universal tokenizer vocabulary.</p></article>
+        </div>
+        <div class="compare-strip">
+          <div><span class="note-tag">VOCABULARY</span><strong>A finite lookup table</strong><p>Each token piece has an integer ID. IDs are labels, not semantic scores; ID 500 is not “more meaningful” than ID 20.</p></div>
+          <div><span class="note-tag">SPECIAL TOKENS</span><strong>Structure & control markers</strong><p>They can mark message boundaries, end-of-sequence, padding, unknown input, or roles in a chat format.</p></div>
+        </div>
+        <div class="interview-box">
+          <div class="note-tag">INTERVIEW CHECK</div>
+          <h3>Can you explain these without mixing them up?</h3>
+          <ul><li>Why can the same sentence have different token counts in different models?</li><li>Why does tokenization affect context limits and inference cost?</li><li>Why can emojis, code, whitespace, and Hindi split into surprising pieces?</li><li>What is the difference between a tokenizer vocabulary and an embedding table?</li></ul>
+        </div>
+        <div class="lab-box">
+          <div class="lab-icon">⌁</div><div><div class="note-tag">LOCAL EXPERIMENT · OLLAMA / PYTHON</div><h3>Tokenizer lab</h3><p>Inspect token pieces, IDs, token counts, decoding, vocabulary, and special tokens. Try an English word, code, an emoji, and Hindi. Compare tokenization across tokenizers where possible.</p><code>unbelievable · print("hello") · 🚀 · नमस्ते</code></div>
+        </div>
+        <div class="memory-hook"><span>MEMORY HOOK</span><strong>Token = piece · ID = address · Embedding = meaning-shaped vector.</strong></div>
+      </section>
+      <footer><span>FIELDNOTES / AI ENGINEERING</span><span>Keep learning. Keep shipping.</span></footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
