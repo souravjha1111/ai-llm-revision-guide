@@ -368,6 +368,24 @@
           <p><b>Trade-off:</b> less recomputation and faster decoding, but the cache consumes memory and grows with batch size, layers, sequence length, and KV-head dimensions. Long contexts can make KV-cache memory a significant inference cost.</p>
         </div>
 
+        <div class="mental-model" style="margin-top:12px">
+          <div class="mental-label">KV-CACHE MEMORY OPTIMIZATION · MQA & GQA</div>
+          <p><b>The problem:</b> KV cache grows with sequence length, batch size, number of layers, and the number of KV heads × head dimension. With standard Multi-Head Attention (MHA), every query head has its own K and V head—so caching them can consume a lot of GPU memory, especially for long contexts and large batches.</p>
+          <div class="note-grid">
+            <article class="note-card"><div class="note-tag">MHA · BASELINE</div><h3>Multi-Head Attention</h3><p>Each query head has a corresponding Key and Value head. If there are 32 heads, cache 32 K heads + 32 V heads per layer.</p><p><b>Memory:</b> highest KV-cache footprint among these three designs (assuming same head dimension and query-head count).</p></article>
+            <article class="note-card"><div class="note-tag">MQA · MEMORY SAVER</div><h3>Multi-Query Attention</h3><p>Keep multiple Query heads, but share <b>one Key head and one Value head across all Query heads</b>. This dramatically reduces the number of K/V tensors that must be stored and read during decoding.</p><p><b>Trade-off:</b> much smaller cache and less KV bandwidth, but aggressive sharing may affect model quality.</p></article>
+            <article class="note-card"><div class="note-tag">GQA · PRACTICAL MIDDLE GROUND</div><h3>Grouped-Query Attention</h3><p>Divide Query heads into groups. Each group shares one K head and one V head, instead of all queries sharing a single pair (MQA) or every query having its own pair (MHA).</p><p><b>Trade-off:</b> substantially smaller KV cache than MHA while retaining more K/V diversity than MQA. Often used as a balance between quality and inference efficiency.</p></article>
+          </div>
+          <p><b>Memory intuition (32 Query heads example):</b> MHA caches 32 KV head pairs · GQA with 8 KV heads caches 8 pairs (each KV head serves 4 query heads) · MQA caches 1 pair (serves all 32 query heads). Cache size scales with KV-head count, so 8 KV heads is roughly ¼ of MHA's KV-cache size and MQA roughly 1/32—under these same-dimension assumptions.</p>
+          <p class="diagram-caption"><b>How this addresses the KV-cache memory bottleneck:</b> reduce the number of Key/Value heads stored per token, layer and batch. It reduces cache storage and KV-memory bandwidth; it does not eliminate sequential token generation or reduce the number of Query heads.</p>
+          <div class="qa-group">
+            <div class="qa-group-title">Quick recall</div>
+            <details class="qa-item"><summary>Why was MQA introduced?</summary><div class="qa-answer"><p>To reduce the memory and bandwidth cost of autoregressive decoding by sharing a single Key and Value head across all Query heads. This makes the KV cache much smaller than standard MHA.</p></div></details>
+            <details class="qa-item"><summary>How is GQA different from MQA?</summary><div class="qa-answer"><p>MQA uses one shared K/V head for all Query heads. GQA uses several K/V heads, with each shared by a group of Query heads. It is a middle ground between MHA and MQA.</p></div></details>
+            <details class="qa-item"><summary>What memory problem do MQA and GQA solve—and what stays the same?</summary><div class="qa-answer"><p>They reduce KV-cache memory and memory traffic by reducing the number of KV heads. Query heads and autoregressive token-by-token decoding remain; they do not make generation parallel.</p></div></details>
+          </div>
+        </div>
+
         <div class="question-bank" id="attention-questions">
           <div class="question-bank-head"><div><div class="note-tag">INTERVIEW QUESTION BANK</div><h3>Attention & KV cache — questions</h3><p>Practice explaining the pipeline, tensor shapes, causal masking, heads, and decoding trade-offs.</p></div><span class="question-count">16 QUESTIONS</span></div>
           <div class="qa-group">
