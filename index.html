@@ -368,6 +368,85 @@
           <p><b>Trade-off:</b> less recomputation and faster decoding, but the cache consumes memory and grows with batch size, layers, sequence length, and KV-head dimensions. Long contexts can make KV-cache memory a significant inference cost.</p>
         </div>
 
+        <section class="kv-implementation" aria-label="KV cache visual explanation and implementation">
+          <div class="kv-visual-title"><div class="note-tag">VISUAL WALKTHROUGH · WHAT IS STORED AND WHEN?</div><h3>KV cache: prefill once, reuse on every decode step</h3><p>These diagrams show the actual cache lifecycle: compute the prompt's Keys and Values once, keep them per Transformer layer, then append only the new token's K/V as generation continues.</p></div>
+          <div class="kv-visual-grid">
+            <figure class="kv-figure">
+              <svg viewBox="0 0 760 310" role="img" aria-label="Prompt prefill passes the full prompt through transformer layers, computes keys and values for each token, and stores them in per-layer caches">
+                <rect x="10" y="10" width="740" height="290" rx="18" fill="#0c1424" stroke="#27354b"/>
+                <text x="32" y="42" fill="#9fb3cb" font-size="14" font-weight="700">STEP 1 · PREFILL (PROMPT PROCESSING)</text>
+                <rect x="32" y="72" width="150" height="70" rx="12" fill="#17263c" stroke="#5a7192"/>
+                <text x="107" y="100" fill="#f0f5ff" font-size="15" text-anchor="middle" font-weight="700">Prompt tokens</text>
+                <text x="107" y="124" fill="#9fb3cb" font-size="13" text-anchor="middle">The cat sat …</text>
+                <path d="M182 107 H220" stroke="#7b91b0" stroke-width="2.5"/><path d="M214 101 L222 107 L214 113" fill="none" stroke="#7b91b0" stroke-width="2.5"/>
+                <rect x="224" y="72" width="150" height="70" rx="12" fill="#182b45" stroke="#5a7192"/>
+                <text x="299" y="100" fill="#f0f5ff" font-size="15" text-anchor="middle" font-weight="700">Transformer layers</text>
+                <text x="299" y="124" fill="#9fb3cb" font-size="13" text-anchor="middle">Compute Q, K, V</text>
+                <path d="M374 107 H412" stroke="#7b91b0" stroke-width="2.5"/><path d="M406 101 L414 107 L406 113" fill="none" stroke="#7b91b0" stroke-width="2.5"/>
+                <rect x="416" y="72" width="300" height="70" rx="12" fill="#12352f" stroke="#3f8b76"/>
+                <text x="566" y="100" fill="#c4ffe8" font-size="15" text-anchor="middle" font-weight="700">Per-layer KV cache</text>
+                <text x="566" y="124" fill="#92d8bf" font-size="13" text-anchor="middle">Store K₁…Kₙ and V₁…Vₙ</text>
+                <path d="M566 142 V178" stroke="#55c8a1" stroke-width="2.5"/><path d="M560 172 L566 180 L572 172" fill="none" stroke="#55c8a1" stroke-width="2.5"/>
+                <rect x="170" y="182" width="520" height="82" rx="12" fill="#102820" stroke="#2e6c5a"/>
+                <text x="430" y="208" fill="#baf5dc" font-size="15" text-anchor="middle" font-weight="700">Cache persists across decode steps</text>
+                <g fill="#163d34" stroke="#43866e"><rect x="222" y="224" width="90" height="26" rx="6"/><rect x="324" y="224" width="90" height="26" rx="6"/><rect x="426" y="224" width="90" height="26" rx="6"/><rect x="528" y="224" width="90" height="26" rx="6"/></g>
+                <g fill="#c8f6e3" font-size="12" text-anchor="middle"><text x="267" y="241">K cache</text><text x="369" y="241">V cache</text><text x="471" y="241">K cache</text><text x="573" y="241">V cache</text></g>
+                <text x="430" y="285" fill="#8fa4bd" font-size="12" text-anchor="middle">Each layer keeps its own past K/V tensors</text>
+              </svg>
+              <figcaption><b>Prompt prefill:</b> the whole prompt is processed together. Every Transformer layer computes K/V for all prompt positions and stores those tensors in its own cache.</figcaption>
+            </figure>
+            <figure class="kv-figure">
+              <svg viewBox="0 0 760 310" role="img" aria-label="During decoding a newly generated token computes new query key and value, appends key and value to the existing cache, uses query to attend to cached keys, and aggregates cached values to predict the next token">
+                <rect x="10" y="10" width="740" height="290" rx="18" fill="#0c1424" stroke="#27354b"/>
+                <text x="32" y="42" fill="#9fb3cb" font-size="14" font-weight="700">STEP 2 · DECODE (ONE NEW TOKEN)</text>
+                <rect x="32" y="70" width="142" height="66" rx="11" fill="#17263c" stroke="#5a7192"/>
+                <text x="103" y="98" fill="#f0f5ff" font-size="15" text-anchor="middle" font-weight="700">New token</text>
+                <text x="103" y="120" fill="#9fb3cb" font-size="13" text-anchor="middle">last generated ID</text>
+                <path d="M174 103 H208" stroke="#7b91b0" stroke-width="2.5"/><path d="M202 97 L210 103 L202 109" fill="none" stroke="#7b91b0" stroke-width="2.5"/>
+                <rect x="212" y="70" width="146" height="66" rx="11" fill="#182b45" stroke="#5a7192"/>
+                <text x="285" y="97" fill="#f0f5ff" font-size="15" text-anchor="middle" font-weight="700">Compute Q, K, V</text>
+                <text x="285" y="120" fill="#9fb3cb" font-size="13" text-anchor="middle">for this position only</text>
+                <path d="M358 103 H395" stroke="#7b91b0" stroke-width="2.5"/><path d="M389 97 L397 103 L389 109" fill="none" stroke="#7b91b0" stroke-width="2.5"/>
+                <rect x="399" y="70" width="320" height="66" rx="11" fill="#12352f" stroke="#3f8b76"/>
+                <text x="559" y="97" fill="#c4ffe8" font-size="15" text-anchor="middle" font-weight="700">Append new K and V</text>
+                <text x="559" y="120" fill="#92d8bf" font-size="13" text-anchor="middle">cache now includes this token</text>
+                <path d="M285 136 V172 H195" fill="none" stroke="#78a9e3" stroke-width="2.5"/><path d="M201 166 L193 172 L201 178" fill="none" stroke="#78a9e3" stroke-width="2.5"/>
+                <rect x="32" y="182" width="285" height="58" rx="11" fill="#15283d" stroke="#4977a6"/>
+                <text x="174" y="205" fill="#cde6ff" font-size="14" text-anchor="middle" font-weight="700">New Q attends to cached K</text>
+                <text x="174" y="224" fill="#91b9df" font-size="12" text-anchor="middle">Scores → softmax → attention weights</text>
+                <path d="M317 211 H350" stroke="#78a9e3" stroke-width="2.5"/><path d="M344 205 L352 211 L344 217" fill="none" stroke="#78a9e3" stroke-width="2.5"/>
+                <rect x="354" y="182" width="195" height="58" rx="11" fill="#172b43" stroke="#4977a6"/>
+                <text x="451" y="205" fill="#cde6ff" font-size="14" text-anchor="middle" font-weight="700">Weighted sum of V</text>
+                <text x="451" y="224" fill="#91b9df" font-size="12" text-anchor="middle">Context for current token</text>
+                <path d="M549 211 H581" stroke="#78a9e3" stroke-width="2.5"/><path d="M575 205 L583 211 L575 217" fill="none" stroke="#78a9e3" stroke-width="2.5"/>
+                <rect x="585" y="182" width="134" height="58" rx="11" fill="#352b1a" stroke="#b58a4d"/>
+                <text x="652" y="205" fill="#ffe3b1" font-size="14" text-anchor="middle" font-weight="700">Predict next</text>
+                <text x="652" y="224" fill="#d6b780" font-size="12" text-anchor="middle">logits → token</text>
+                <text x="375" y="277" fill="#8fa4bd" font-size="12" text-anchor="middle">Repeat with the newly generated token; old K/V are reused, not recomputed.</text>
+              </svg>
+              <figcaption><b>Decode step:</b> only the newest position's Q/K/V are computed. K/V are appended; Q uses the full cached K, and attention combines the corresponding cached V. The output predicts the next token.</figcaption>
+            </figure>
+          </div>
+          <div class="kv-implementation-grid">
+            <article class="kv-implementation-card"><h4>How it is implemented in practice</h4><ol><li>During <b>prefill</b>, run prompt tokens through the model; each layer returns its K/V tensors.</li><li>Keep a cache structure with one K/V pair per layer (often tensors shaped batch × KV-heads × sequence × head-dim, layout varies by runtime).</li><li>At the next decode call, pass the previous cache and only the newest token (plus its position information).</li><li>Each layer computes current Q/K/V, concatenates current K/V along the sequence axis, and uses cached K/V for attention.</li><li>Return updated cache with logits; select the next token and repeat until stopping.</li></ol></article>
+            <article class="kv-implementation-card"><h4>Illustrative pseudocode</h4><pre><code>past_key_values = None
+# Prefill: process the prompt
+out = model(prompt_ids, use_cache=True)
+past_key_values = out.past_key_values
+
+# Decode: send only the newest token
+while not done:
+    out = model(
+        next_token,
+        past_key_values=past_key_values,
+        use_cache=True
+    )
+    past_key_values = out.past_key_values
+    next_token = choose_token(out.logits[:, -1, :])</code></pre><p class="kv-code-note">API names differ by framework/model. This is the common cache-reuse pattern, not a copy-paste runnable snippet.</p></article>
+          </div>
+          <div class="kv-memory-note"><b>Remember:</b> KV cache stores past <em>Keys and Values</em> for every layer—not Q, not attention-score matrices, and not the generated text itself. It is an inference-time cache, not model weights.</div>
+        </section>
+
         <div class="mental-model" style="margin-top:12px">
           <div class="mental-label">KV-CACHE MEMORY OPTIMIZATION · MQA & GQA</div>
           <p><b>The problem:</b> KV cache grows with sequence length, batch size, number of layers, and the number of KV heads × head dimension. With standard Multi-Head Attention (MHA), every query head has its own K and V head—so caching them can consume a lot of GPU memory, especially for long contexts and large batches.</p>
