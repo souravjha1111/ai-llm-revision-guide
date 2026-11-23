@@ -34,3 +34,9 @@
 .ml-type-grid .note-card p+p{margin-top:8px}
 .ml-type-grid .note-card b{color:#dce8f8}
 @media(max-width:650px){.ml-taxonomy{grid-template-columns:1fr}.ml-type-grid .note-card{min-height:0}}
+
+/* Opening clarification for ML taxonomy */
+.ml-clarity-notice{padding:17px 19px;margin:0 0 22px;border:1px solid #645239;border-left:3px solid var(--amber);border-radius:8px;background:#292318;color:#d9c9aa}
+.ml-clarity-notice .note-tag{color:var(--amber);margin-bottom:9px}
+.ml-clarity-notice strong{display:block;color:#f0e2c5;font-size:13px;line-height:1.8}
+.ml-clarity-notice p{color:#c4b79d;font-size:11px;line-height:1.85;margin:9px 0 0}
