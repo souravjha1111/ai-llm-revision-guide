@@ -40,3 +40,38 @@
 .ml-clarity-notice .note-tag{color:var(--amber);margin-bottom:9px}
 .ml-clarity-notice strong{display:block;color:#f0e2c5;font-size:13px;line-height:1.8}
 .ml-clarity-notice p{color:#c4b79d;font-size:11px;line-height:1.85;margin:9px 0 0}
+
+/* Readability pass + concept trade-off cards */
+body{font-size:16px;line-height:1.78}
+.hero-copy{font-size:16px}
+.section-sub{font-size:14px;line-height:1.75}
+.principles p,.note-card p,.compare-strip p,.interview-box li,.lab-box p{font-size:13.5px;line-height:1.85}
+.note-card li{font-size:13px;line-height:1.85}
+.note-card h3,.interview-box h3,.lab-box h3{font-size:17px}
+.module-info h3{font-size:14px}
+.module-info p{font-size:12px;line-height:1.7}
+.qa-item summary{font-size:14px;line-height:1.7;padding-top:15px;padding-bottom:15px}
+.qa-answer{font-size:13.5px;line-height:1.9}
+.qa-answer code,.note-card code,.lab-box code{font-size:11.5px}
+.diagram-caption{font-size:12.5px;line-height:1.8}
+.note-tag,.mental-label,.side-label,.eyebrow,.crumb,.hero-meta,.section-index,.stat-kicker{font-size:10.5px}
+.pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px;padding-top:12px;border-top:1px solid var(--line)}
+.pros-cons>div{padding:10px 11px;border-radius:7px;background:#0d1727}
+.pros-cons b{font:10px var(--mono);letter-spacing:.06em;color:var(--mint)}
+.pros-cons>div:nth-child(2) b{color:var(--amber)}
+.pros-cons p{font-size:12.5px!important;line-height:1.75!important;margin:5px 0 0!important}
+@media(max-width:650px){
+ body{font-size:15px;line-height:1.75}
+ .hero-copy{font-size:14px}
+ .section-sub{font-size:12.5px}
+ .principles p,.note-card p,.compare-strip p,.interview-box li,.lab-box p{font-size:13px}
+ .note-card li{font-size:12.5px}
+ .note-card h3,.interview-box h3,.lab-box h3{font-size:16px}
+ .module-info h3{font-size:12px}
+ .module-info p{font-size:10.5px}
+ .qa-item summary{font-size:12.5px;line-height:1.7}
+ .qa-answer{font-size:12.5px}
+ .diagram-caption{font-size:11.5px}
+ .pros-cons{grid-template-columns:1fr;gap:7px}
+ .pros-cons p{font-size:12.5px!important}
+}
