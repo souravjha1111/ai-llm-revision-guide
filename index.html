@@ -23,6 +23,7 @@
       <a class="side-link" href="#tokenization"><span>⌘</span> Tokenization</a>
       <a class="side-link" href="#ml-types"><span>◈</span> Types of ML</a>
       <a class="side-link" href="#architectures"><span>⌘</span> CNN → Transformer</a>
+      <a class="side-link" href="#transformer-attention"><span>◉</span> Attention & KV cache</a>
       <div class="sidebar-bottom">
         <div class="side-label">BUILT FOR</div>
         <p>Clear mental models.<br>Practical engineering.<br>Interview recall.</p>
@@ -65,7 +66,7 @@
           <article class="module-row" data-search="ml foundations machine learning ai deep learning supervised unsupervised self supervised reinforcement"><div class="module-number">00</div><div class="module-info"><h3>ML foundations refresh</h3><p>AI vs ML vs deep learning · learning paradigms · neural network basics</p></div><span class="status status-covered">Covered in session</span><a class="module-arrow" href="#ml-types" aria-label="Open ML types notes">↗</a></article>
           <article class="module-row" data-search="llm foundations tokenization tokens token ids bpe vocabulary special tokens"><div class="module-number">01</div><div class="module-info"><h3>LLM foundations & tokenization</h3><p>Tokens · token IDs · subwords · BPE · vocabulary · special tokens</p></div><span class="status status-current">Current focus</span><a class="module-arrow" href="#tokenization" aria-label="Open tokenization notes">↗</a></article>
           <article class="module-row" data-search="cnn convolution image vision rnn recurrent sequence lstm long short term memory gru gated recurrent unit transformer attention architectures"><div class="module-number">02</div><div class="module-info"><h3>CNN, RNN, LSTM, GRU & Transformer</h3><p>Architectural evolution · spatial vs sequential data · attention</p></div><span class="status status-covered">Covered in session</span><a class="module-arrow" href="#architectures" aria-label="Open architecture notes">↗</a></article>
-          <article class="module-row" data-search="transformer internals generation mechanics qkv softmax logits sampling"><div class="module-number">03</div><div class="module-info"><h3>Transformer internals & generation mechanics</h3><p>Q / K / V · attention · logits · decoding · context window</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
+          <article class="module-row" data-search="transformer internals generation mechanics qkv self attention multi head attention softmax logits sampling kv cache"><div class="module-number">03</div><div class="module-info"><h3>Transformer internals & generation mechanics</h3><p>Q / K / V · self-attention · multi-head attention · KV cache</p></div><span class="status status-covered">Covered in session</span><a class="module-arrow" href="#transformer-attention" aria-label="Open attention notes">↗</a></article>
           <article class="module-row" data-search="inference engineering serving batching kv cache quantization latency throughput"><div class="module-number">04</div><div class="module-info"><h3>Inference engineering</h3><p>Serving · batching · KV cache · quantization · latency / throughput</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
           <article class="module-row" data-search="data engineering pretraining datasets cleaning dedup training"><div class="module-number">05</div><div class="module-info"><h3>Data engineering & pretraining</h3><p>Data pipelines · quality · deduplication · pretraining objective</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
           <article class="module-row" data-search="fine tuning alignment sft lora peft dpo rl hf"><div class="module-number">06</div><div class="module-info"><h3>Fine-tuning & alignment</h3><p>Supervised fine-tuning · PEFT / LoRA · preference alignment</p></div><span class="status status-next">Upcoming</span><span class="module-arrow">—</span></article>
@@ -308,7 +309,97 @@
         </div>
       </section>
 
-<footer><span>FIELDNOTES / AI ENGINEERING</span><span>Keep learning. Keep shipping.</span></footer>
+      <section class="section-block notes-section" id="transformer-attention">
+        <div class="section-heading"><div><div class="eyebrow">MODULE 03 · DEEP DIVE</div><h2>Transformer internals: self-attention, multi-head attention & KV cache</h2><p class="section-sub">Trace one token sequence all the way from embeddings to contextual outputs—then see what changes with multiple heads and autoregressive generation.</p></div><span class="status status-covered">Covered in session</span></div>
+
+        <div class="ml-clarity-notice">
+          <div class="note-tag">YOUR MENTAL MODEL · CONFIRMED + CORRECTED</div>
+          <strong>Your overall flow is right. The key correction: attention scores come from Q × Kᵀ—not Q × V. The scores decide how much of each Value vector gets blended into the output.</strong>
+          <p>Q and K are used to calculate relevance; V carries the content that is aggregated. Keep those roles separate in your mental model.</p>
+        </div>
+
+        <div class="mental-model">
+          <div class="mental-label">END-TO-END EXAMPLE · ILLUSTRATIVE SHAPES</div>
+          <div class="pipeline">
+            <div class="pipe-box"><span>TEXT</span><strong>“The dog is sleeping on the couch”</strong></div><div class="pipe-arrow">→</div>
+            <div class="pipe-box"><span>TOKENS</span><strong>Assume 6 tokens</strong></div><div class="pipe-arrow">→</div>
+            <div class="pipe-box"><span>EMBEDDINGS</span><strong>6 × 8 matrix X</strong></div>
+          </div>
+          <p class="diagram-caption">Token count and embedding dimension are toy assumptions for explaining shapes—not the tokenizer's guaranteed output. Each row of X is one token's embedding (with positional information incorporated in the model's input representation).</p>
+        </div>
+
+        <div class="note-grid">
+          <article class="note-card"><div class="note-tag">STEP 01 / LINEAR PROJECTIONS</div><h3>Create Q, K and V</h3><p>Each token embedding is multiplied by three learned projection matrices:</p><p><code>Q = XWQ</code> · <code>K = XWK</code> · <code>V = XWV</code></p><p>With X = 6 × 8 and one toy head using d<sub>k</sub> = d<sub>v</sub> = 4, choose each projection matrix as 8 × 4. Q, K and V are then each 6 × 4.</p></article>
+          <article class="note-card"><div class="note-tag">STEP 02 / MATCHING</div><h3>Compute QKᵀ—not QV</h3><p>Q (6 × 4) multiplied by Kᵀ (4 × 6) produces a 6 × 6 score matrix. Every row is one query token; every column is one key token. The score at row i, column j represents how strongly token i's query matches token j's key.</p></article>
+          <article class="note-card"><div class="note-tag">STEP 03 / SCALE</div><h3>Divide by √d<sub>k</sub></h3><p>Scale the raw scores by √4 = 2 in this toy example. Scaling keeps dot-product magnitudes from becoming too large as key/query dimensions grow, which helps softmax avoid overly saturated distributions and supports stable gradients.</p><p><code>S = QKᵀ / √dₖ</code></p></article>
+          <article class="note-card"><div class="note-tag">STEP 04 / SOFTMAX</div><h3>Turn scores into attention weights</h3><p>Apply softmax row-wise across the key positions. Each row becomes a probability distribution (sums to 1), expressing how much that query position attends to each token position. In GPT-like causal self-attention, a mask blocks future positions before softmax.</p><p><code>A = softmax(S + mask)</code> (mask is optional for bidirectional attention; causal for decoder-only GPT-style models).</p></article>
+          <article class="note-card"><div class="note-tag">STEP 05 / AGGREGATE CONTENT</div><h3>Multiply the weights by V</h3><p>A (6 × 6) multiplied by V (6 × 4) gives Z (6 × 4). For each query token, its output is a weighted sum of Value vectors from the tokens it is allowed to see. Attention weights select/blend information; they are not the final contextual vector themselves.</p><p><code>Z = AV</code></p></article>
+          <article class="note-card"><div class="note-tag">STEP 06 / CONTEXTUAL OUTPUT</div><h3>What does Z mean?</h3><p>Z contains one context-aware output vector per token. A token's vector now mixes information from other positions according to attention. It is not one vector for the whole sentence—the output is still a sequence of 6 vectors (6 × 4 in this single-head toy example).</p></article>
+        </div>
+
+        <div class="mental-model" style="margin-top:12px">
+          <div class="mental-label">SINGLE-HEAD SELF-ATTENTION · FLOW</div>
+          <p><b>X (6 × 8)</b> → learned WQ/WK/WV → <b>Q, K, V (each 6 × 4)</b> → QKᵀ (6 × 6) → divide by √dₖ → optional mask → row-wise softmax (A, 6 × 6) → A × V → <b>Z (6 × 4 contextual vectors)</b>.</p>
+          <p class="diagram-caption">Self-attention means Q, K and V are projected from the same input sequence X. In cross-attention, Q comes from one sequence while K and V come from another.</p>
+        </div>
+
+        <div class="note-grid">
+          <article class="note-card"><div class="note-tag">INTERNET VISUAL · SELF-ATTENTION</div><h3>Scaled dot-product attention diagram</h3><p>Follow Q and K into the score calculation; V joins only after the softmax weights have been created.</p><p><a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noreferrer">The Illustrated Transformer — Jay Alammar ↗</a></p><p><a href="https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial6/Transformers_and_MHAttention.html" target="_blank" rel="noreferrer">UvA Deep Learning — attention walkthrough ↗</a></p></article>
+          <article class="note-card"><div class="note-tag">INTERNET VISUAL · MULTI-HEAD</div><h3>Parallel attention heads</h3><p>Each head has its own learned Q/K/V projections, computes attention independently, and then the head outputs are concatenated and projected.</p><p><a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noreferrer">Open visual multi-head explanation ↗</a></p><p><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noreferrer">Original Transformer paper: Attention Is All You Need ↗</a></p></article>
+        </div>
+
+        <div class="mental-model" style="margin-top:12px">
+          <div class="mental-label">MULTI-HEAD ATTENTION · EXAMPLE WITH 2 HEADS</div>
+          <p>Assume model width = 8 and 2 heads, each with head dimension 4. Each head has separate projection weights and independently runs the same attention pipeline over the sequence:</p>
+          <p><b>Head 1:</b> Q₁, K₁, V₁ → scaled dot-product attention → Z₁ (6 × 4)<br><b>Head 2:</b> Q₂, K₂, V₂ → scaled dot-product attention → Z₂ (6 × 4)</p>
+          <p>Concatenate the two outputs along the feature dimension: <b>Concat(Z₁, Z₂) → 6 × 8</b>. A final learned output projection W<sub>O</sub> (8 × 8 in this toy setup) mixes the concatenated head information and returns the sequence to model width 8.</p>
+          <p><b>Formula:</b> MultiHead(Q,K,V) = Concat(head₁,…,headₕ)W<sub>O</sub>, where headᵢ = Attention(QWᵢ<sup>Q</sup>, KWᵢ<sup>K</sup>, VWᵢ<sup>V</sup>).</p>
+          <p class="diagram-caption">Heads may learn different useful patterns, but we do not hard-code one head to “syntax” and another to “meaning.” Specialization is learned and can be distributed across heads.</p>
+        </div>
+
+        <div class="note-grid">
+          <article class="note-card"><div class="note-tag">KV CACHE / WHY</div><h3>Why store Keys and Values?</h3><p>In autoregressive decoding, the model generates one token at a time. Previous tokens' K and V for each layer are reused at future steps. Caching them avoids recalculating these projections and repeating attention work for earlier tokens at every generation step.</p></article>
+          <article class="note-card"><div class="note-tag">KV CACHE / NEXT TOKEN</div><h3>What happens when a new token arrives?</h3><p>At each layer, the new token's hidden state produces its Q, K and V. Append the new K/V to the layer's cache; the new Q attends to the cached K values (plus the new position, as allowed by causal masking), then combines the resulting weights with cached V values. The model still generates sequentially—KV cache makes each step cheaper.</p></article>
+        </div>
+        <div class="mental-model" style="margin-top:12px">
+          <div class="mental-label">KV CACHE · SIMPLE GENERATION FLOW</div>
+          <p><b>Prompt prefill:</b> process prompt tokens → compute each layer's K/V → store cache.</p>
+          <p><b>Next-token step:</b> process newest token → compute its Q/K/V → append K/V to cache → Q attends over cached K → weights combine cached V → output predicts next token.</p>
+          <p><b>Trade-off:</b> less recomputation and faster decoding, but the cache consumes memory and grows with batch size, layers, sequence length, and KV-head dimensions. Long contexts can make KV-cache memory a significant inference cost.</p>
+        </div>
+
+        <div class="question-bank" id="attention-questions">
+          <div class="question-bank-head"><div><div class="note-tag">INTERVIEW QUESTION BANK</div><h3>Attention & KV cache — questions</h3><p>Practice explaining the pipeline, tensor shapes, causal masking, heads, and decoding trade-offs.</p></div><span class="question-count">16 QUESTIONS</span></div>
+          <div class="qa-group">
+            <div class="qa-group-title">A · Self-attention mechanics</div>
+            <details class="qa-item"><summary>1. Why do we compute QKᵀ instead of QVᵀ?</summary><div class="qa-answer"><p>Q and K are the learned representations used to calculate compatibility/scores. V contains the content to be aggregated after those scores become attention weights. Mixing V into the score calculation would change the mechanism's roles.</p></div></details>
+            <details class="qa-item"><summary>2. What shape is the attention score matrix for n tokens?</summary><div class="qa-answer"><p>With Q and K shaped n × dₖ, QKᵀ has shape n × n: each query position is scored against every key position. With causal masking, future-position scores are set to an effectively negative infinity before softmax so their weights become zero.</p></div></details>
+            <details class="qa-item"><summary>3. Why divide by √dₖ?</summary><div class="qa-answer"><p>As dₖ grows, dot products can grow in magnitude. Large logits can push softmax into saturated regions with very small gradients. Scaling by √dₖ controls the magnitude of scores and helps training stability.</p></div></details>
+            <details class="qa-item"><summary>4. What exactly does softmax do here?</summary><div class="qa-answer"><p>For each query row, it converts scores across key positions into nonnegative weights that sum to one. Those weights describe how the query distributes attention over available tokens; they are then used to weight V, not Q or K.</p></div></details>
+            <details class="qa-item"><summary>5. Is the attention output a single vector for the sentence?</summary><div class="qa-answer"><p>No. Standard self-attention returns one contextual output vector per input position. The output is a matrix of sequence length × value dimension (per head), not one pooled sentence vector.</p></div></details>
+            <details class="qa-item"><summary>6. Why is it called self-attention?</summary><div class="qa-answer"><p>Because queries, keys, and values are derived from the same input sequence. Cross-attention uses queries from one sequence and keys/values from another.</p></div></details>
+            <details class="qa-item"><summary>7. Why is a causal mask used in GPT-style models?</summary><div class="qa-answer"><p>To prevent a position from attending to future tokens it should not see when predicting the next token. Masked future scores become zero after softmax, preserving autoregressive training and generation.</p></div></details>
+          </div>
+          <div class="qa-group">
+            <div class="qa-group-title">B · Multi-head attention</div>
+            <details class="qa-item"><summary>8. Why use multiple heads instead of one attention head?</summary><div class="qa-answer"><p>Multiple heads use different learned projections, enabling the model to represent and attend through multiple feature subspaces/relationships in parallel. Their outputs are concatenated and transformed by a learned output projection.</p></div></details>
+            <details class="qa-item"><summary>9. Do heads have predefined jobs such as syntax, coreference or semantics?</summary><div class="qa-answer"><p>No. These are illustrative patterns that some heads may learn. The model does not assign those jobs explicitly, and attention-head behavior is not guaranteed to be cleanly interpretable or one-head-one-function.</p></div></details>
+            <details class="qa-item"><summary>10. What happens after each head computes attention?</summary><div class="qa-answer"><p>The per-head outputs are concatenated along the feature dimension, then multiplied by a learned output projection Wᴼ. This mixes the head outputs and typically returns to the model's hidden width.</p></div></details>
+            <details class="qa-item"><summary>11. In a model with width 8 and 2 heads of width 4, what are the shapes?</summary><div class="qa-answer"><p>For 6 tokens: each head output is 6 × 4; concatenation is 6 × 8; the final projection Wᴼ (8 × 8 in this toy example) keeps the output 6 × 8. Real models use different dimensions and head counts.</p></div></details>
+          </div>
+          <div class="qa-group">
+            <div class="qa-group-title">C · KV cache & inference</div>
+            <details class="qa-item"><summary>12. What exactly is cached in the KV cache?</summary><div class="qa-answer"><p>Key and Value tensors for prior tokens, typically stored per Transformer layer (and with the architecture's KV-head layout). They are reused in later autoregressive steps so prior token K/V projections do not need to be recomputed.</p></div></details>
+            <details class="qa-item"><summary>13. Are Query vectors cached?</summary><div class="qa-answer"><p>Typically the standard KV cache stores K and V, not Q. The query for the current decoding position is computed when that position is processed and used to attend over the available cached keys.</p></div></details>
+            <details class="qa-item"><summary>14. Does KV cache make generation parallel?</summary><div class="qa-answer"><p>No. Autoregressive generation still predicts one token at a time because each next token depends on the previous generated token. KV cache reduces redundant computation within each step; it does not remove the sequential dependency between generated tokens.</p></div></details>
+            <details class="qa-item"><summary>15. What is the trade-off of KV cache?</summary><div class="qa-answer"><p>It reduces recomputation and improves decode efficiency, but consumes memory proportional to cached sequence length, batch, layers, and KV dimensions. Longer contexts and larger batches increase memory usage.</p></div></details>
+            <details class="qa-item"><summary>16. Does the cache hold only one layer's K/V?</summary><div class="qa-answer"><p>No. Each Transformer layer maintains its own cached K/V states for past positions. A complete model cache contains the per-layer caches, with layout depending on the implementation and architecture.</p></div></details>
+          </div>
+          <div class="qa-callout"><b>Interview traps:</b> QKᵀ produces scores; softmax produces attention weights; AV produces contextual outputs. KV cache stores past Keys and Values (not attention scores and not typically Queries). Multi-head attention concatenates head outputs and applies Wᴼ.</div>
+        </div>
+      </section>
+
+      <footer><span>FIELDNOTES / AI ENGINEERING</span><span>Keep learning. Keep shipping.</span></footer>
     </main>
   </div>
   <script src="app.js"></script>
