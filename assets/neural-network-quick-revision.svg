@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111a30"/><stop offset="1" stop-color="#0b1020"/></linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#70d6c5"/><stop offset="1" stop-color="#8c9cff"/></linearGradient>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#8291b4"/></marker>
+  <style>
+    .h{font:700 32px Manrope,Arial,sans-serif;fill:#f3f6ff}.sub{font:500 17px Manrope,Arial,sans-serif;fill:#aab6d1}
+    .label{font:700 16px Manrope,Arial,sans-serif;fill:#dce5ff;letter-spacing:1.2px}
+    .small{font:500 15px Manrope,Arial,sans-serif;fill:#b8c4df}
+    .tiny{font:500 13px Manrope,Arial,sans-serif;fill:#9eabc8}
+    .node{fill:#1b2945;stroke:#7186b7;stroke-width:2}
+    .line{stroke:#8291b4;stroke-width:2;opacity:.75;marker-end:url(#arrow)}
+    .pill{fill:#17243d;stroke:#34476c;stroke-width:1.5}
+  </style>
+</defs>
+<rect width="1400" height="720" rx="28" fill="url(#bg)"/>
+<text x="64" y="68" class="h">NEURAL NETWORK — QUICK REVISION</text>
+<text x="64" y="101" class="sub">A learnable function: inputs flow forward to produce a prediction.</text>
+<rect x="64" y="142" width="1272" height="292" rx="20" fill="#101a2e" stroke="#283958"/>
+<text x="100" y="184" class="label">FORWARD PROPAGATION</text>
+<g>
+  <rect x="105" y="218" width="190" height="160" rx="14" class="pill"/>
+  <text x="200" y="246" text-anchor="middle" class="label">INPUT FEATURES</text>
+  <text x="200" y="281" text-anchor="middle" class="small">Area · Bedrooms</text>
+  <text x="200" y="308" text-anchor="middle" class="small">Location · Age</text>
+  <text x="200" y="350" text-anchor="middle" class="tiny">x = [x₁, x₂, ... xₙ]</text>
+  <path d="M295 298 H380" class="line"/>
+  <rect x="390" y="218" width="230" height="160" rx="14" class="pill"/>
+  <text x="505" y="246" text-anchor="middle" class="label">HIDDEN LAYER</text>
+  <g fill="#1b2945" stroke="#70d6c5" stroke-width="2">
+    <circle cx="455" cy="282" r="13"/><circle cx="505" cy="282" r="13"/><circle cx="555" cy="282" r="13"/>
+    <circle cx="455" cy="326" r="13"/><circle cx="505" cy="326" r="13"/><circle cx="555" cy="326" r="13"/>
+  </g>
+  <text x="505" y="365" text-anchor="middle" class="tiny">Learn useful representations</text>
+  <path d="M620 298 H705" class="line"/>
+  <rect x="715" y="218" width="220" height="160" rx="14" class="pill"/>
+  <text x="825" y="246" text-anchor="middle" class="label">OUTPUT LAYER</text>
+  <circle cx="825" cy="300" r="22" fill="#1b2945" stroke="#8c9cff" stroke-width="2.5"/>
+  <text x="825" y="305" text-anchor="middle" class="small">ŷ</text>
+  <text x="825" y="350" text-anchor="middle" class="tiny">Prediction / probability</text>
+  <path d="M935 298 H1015" class="line"/>
+  <rect x="1025" y="218" width="270" height="160" rx="14" fill="#172b39" stroke="#70d6c5" stroke-width="1.5"/>
+  <text x="1160" y="250" text-anchor="middle" class="label">PREDICTION</text>
+  <text x="1160" y="292" text-anchor="middle" style="font:700 27px Manrope,Arial;fill:#70d6c5">₹90 lakh</text>
+  <text x="1160" y="330" text-anchor="middle" class="tiny">Example: house-price regression</text>
+</g>
+<text x="700" y="413" text-anchor="middle" class="tiny">Each neuron: z = Σ(wᵢxᵢ) + b  →  a = f(z)</text>
+<rect x="64" y="460" width="1272" height="196" rx="20" fill="#101a2e" stroke="#283958"/>
+<text x="100" y="501" class="label">HOW TRAINING MAKES IT LEARN</text>
+<g>
+  <rect x="100" y="526" width="230" height="82" rx="12" class="pill"/>
+  <text x="215" y="558" text-anchor="middle" class="label">1 · PREDICT</text><text x="215" y="584" text-anchor="middle" class="tiny">Forward pass</text>
+  <path d="M330 567 H385" class="line"/>
+  <rect x="395" y="526" width="230" height="82" rx="12" class="pill"/>
+  <text x="510" y="558" text-anchor="middle" class="label">2 · MEASURE</text><text x="510" y="584" text-anchor="middle" class="tiny">Loss vs true label</text>
+  <path d="M625 567 H680" class="line"/>
+  <rect x="690" y="526" width="230" height="82" rx="12" class="pill"/>
+  <text x="805" y="558" text-anchor="middle" class="label">3 · BACKPROP</text><text x="805" y="584" text-anchor="middle" class="tiny">Calculate gradients</text>
+  <path d="M920 567 H975" class="line"/>
+  <rect x="985" y="526" width="300" height="82" rx="12" fill="#172b39" stroke="#70d6c5" stroke-width="1.5"/>
+  <text x="1135" y="558" text-anchor="middle" class="label">4 · UPDATE</text><text x="1135" y="584" text-anchor="middle" class="tiny">Optimizer adjusts weights</text>
+</g>
+<text x="700" y="634" text-anchor="middle" class="tiny">Inference: use the learned weights for a forward pass — no backpropagation or weight updates.</text>
+</svg>
